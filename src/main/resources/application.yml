@@ -1,3 +1,20 @@
 spring:
   application:
     name: reevo_backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/reevo_db
+    username: admin
+    password: 123456
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+jwt:
+  secret: Fl!Ci[)[.9gkF%{>Hm>d#=-NXbI]Q[yhb_<XqKiUL_=RYrX{dY^N-*AdVF7i$:VB$S07;61hGH9.:6HMsBl;nQ
+  expiration: 3600000
