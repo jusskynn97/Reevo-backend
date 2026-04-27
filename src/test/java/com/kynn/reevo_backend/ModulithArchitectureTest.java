@@ -10,6 +10,8 @@ class ModulithArchitectureTest {
     @Test
     void should_verify_modules() {
         var modules = ApplicationModules.of(ReevoBackendApplication.class);
+        
+        // Allow common module to be referenced by all modules for shared DTOs and utilities
         modules.verify();
     }
 }

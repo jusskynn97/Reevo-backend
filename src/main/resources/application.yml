@@ -2,6 +2,12 @@ spring:
   application:
     name: reevo_backend
 
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+      enabled: true
+
   datasource:
     url: jdbc:postgresql://localhost:5432/reevo_db
     username: admin
@@ -16,5 +22,10 @@ spring:
         format_sql: true
 
 jwt:
-  secret: Fl!Ci[)[.9gkF%{>Hm>d#=-NXbI]Q[yhb_<XqKiUL_=RYrX{dY^N-*AdVF7i$:VB$S07;61hGH9.:6HMsBl;nQ
+  secret: ${JWT_SECRET_KEY}
   expiration: 3600000
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}

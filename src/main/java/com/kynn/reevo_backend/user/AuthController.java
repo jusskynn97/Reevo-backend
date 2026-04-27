@@ -1,5 +1,11 @@
 package com.kynn.reevo_backend.user;   
 
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.kynn.reevo_backend.common.api.ApiResponse;
 import com.kynn.reevo_backend.user.api.UserFacade;
 import com.kynn.reevo_backend.user.api.dto.AuthResponse;
 import com.kynn.reevo_backend.user.api.dto.LoginRequest;
@@ -10,10 +16,6 @@ import com.kynn.reevo_backend.user.internal.service.RefreshTokenService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.web.bind.annotation.*;
-
-import com.kynn.reevo_backend.common.dto.ApiResponse;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -43,10 +45,10 @@ public class AuthController {
 
         Account account = rt.getAccount();
 
-        // Tạo access token mới
+        // Create new access token
         String newAccessToken = jwtService.generateAccessToken(account);
 
-        // Rotate refresh token (security tốt hơn)
+        // Rotate refresh token
         String newRefreshToken = refreshTokenService.createRefreshToken(account);
 
         return ApiResponse.ok(new AuthResponse(newAccessToken, newRefreshToken, account.getId()));

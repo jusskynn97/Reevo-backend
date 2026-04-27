@@ -1,4 +1,4 @@
-package com.kynn.reevo_backend.common.dto;
+package com.kynn.reevo_backend.common.api;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
