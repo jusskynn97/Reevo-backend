@@ -3,11 +3,9 @@ package com.kynn.reevo_backend.video;
 import java.io.IOException;
 import java.util.UUID;
 
+import com.kynn.reevo_backend.common.api.CurrentUserId;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.kynn.reevo_backend.common.api.ApiResponse;
 import com.kynn.reevo_backend.video.api.VideoFacade;
@@ -26,9 +24,14 @@ public class VideoController {
     @PostMapping("/upload")
     public ApiResponse<VideoUploadResponse> upload(
             @ModelAttribute VideoUploadRequest request,
-            @AuthenticationPrincipal UUID userId) throws IOException {  
+            @CurrentUserId UUID userId) throws IOException {
 
         VideoUploadResponse response = videoFacade.uploadVideo(request, userId);
         return ApiResponse.ok(response);
+    }
+
+    @GetMapping("/test")
+    public ApiResponse<String> test(@CurrentUserId UUID userId) throws IOException {
+        return ApiResponse.ok(userId.toString());
     }
 }
