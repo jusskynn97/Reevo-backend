@@ -27,11 +27,14 @@ public class Video {
     @Version
     private Long version;
 
-    private UUID uploaderId;           // from user module
+    private UUID uploaderId;
 
-    private String title;
     private String description;
-    private String hashtags;           // save as json or string
+
+    private Boolean allowComment;
+
+    @Enumerated(EnumType.STRING)
+    private VideoPrivacy videoPrivacy;
 
     private String cloudinaryPublicId;
     private String videoUrl;           // secure_url from Cloudinary
@@ -43,6 +46,7 @@ public class Video {
     private Long duration;             // seconds
     private Long fileSize;
     private String format;             // mp4, webm...
+    private LocalDateTime scheduledAt = LocalDateTime.now();
 
     private LocalDateTime uploadedAt = LocalDateTime.now();
     private LocalDateTime processedAt;

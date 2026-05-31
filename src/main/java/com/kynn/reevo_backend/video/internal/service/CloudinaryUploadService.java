@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Transformation;
+import com.kynn.reevo_backend.tag.internal.service.TaggingService;
 import com.kynn.reevo_backend.video.event.VideoUploadedEvent;
 import com.kynn.reevo_backend.video.internal.domain.Video;
 import com.kynn.reevo_backend.video.internal.domain.VideoStatus;
@@ -32,11 +34,15 @@ public class CloudinaryUploadService {
     private final Cloudinary cloudinary;
     private final ApplicationEventPublisher eventPublisher;
     private final VideoRepository videoRepository;
+    private final UploadProgressService uploadProgressService;
+    @Lazy
+    private final TaggingService taggingService;
 
     @Async("videoUploadExecutor")
     public CompletableFuture<Void> uploadAsync(UUID videoId, byte[] fileBytes) {
         try {
             updateVideoStatusWithRetry(videoId, VideoStatus.UPLOADING, null);
+//            uploadProgressService.sendProgress(videoId, VideoStatus.UPLOADING, 10);
 
             Map<String, Object> options = new HashMap<>();
             options.put("resource_type", "video");
@@ -51,9 +57,17 @@ public class CloudinaryUploadService {
             // Cập nhật thông tin sau khi upload thành công
             updateVideoWithUploadResult(videoId, uploadResult);
 
+            // TAG THE VIDEO BEFORE PUBLISHING EVENT
+            Optional<Video> videoOpt = videoRepository.findById(videoId);
+            if (videoOpt.isPresent()) {
+                Video video = videoOpt.get();
+                log.info("Starting to tag video: {}", videoId);
+                taggingService.tagVideo(video);
+                log.info("Finished tagging video: {}", videoId);
+            }
+
             // Publish event cho các module khác (feed, notification...)
-            Optional<Video> video = videoRepository.findById(videoId);
-            video.ifPresent(v -> eventPublisher.publishEvent(new VideoUploadedEvent(this, v)));
+            videoOpt.ifPresent(v -> eventPublisher.publishEvent(new VideoUploadedEvent(this, v)));
 
             return CompletableFuture.completedFuture(null);
 
@@ -73,7 +87,7 @@ public class CloudinaryUploadService {
     }
 
     @Transactional
-    private void updateVideoStatusWithRetry(UUID videoId, VideoStatus status, LocalDateTime processedAt) {
+    protected void updateVideoStatusWithRetry(UUID videoId, VideoStatus status, LocalDateTime processedAt) {
         int maxRetries = 3;
         int retryCount = 0;
         while (retryCount < maxRetries) {
@@ -103,7 +117,7 @@ public class CloudinaryUploadService {
     }
 
     @Transactional
-    private void updateVideoWithUploadResult(UUID videoId, Map<String, Object> uploadResult) {
+    protected void updateVideoWithUploadResult(UUID videoId, Map<String, Object> uploadResult) {
         int maxRetries = 3;
         int retryCount = 0;
         while (retryCount < maxRetries) {
@@ -113,7 +127,17 @@ public class CloudinaryUploadService {
                     Video video = videoOpt.get();
                     video.setCloudinaryPublicId((String) uploadResult.get("public_id"));
                     video.setVideoUrl((String) uploadResult.get("secure_url"));
-                    video.setThumbnailUrl(cloudinary.url().transformation(new Transformation<>().width(300).crop("fill")).generate((String) uploadResult.get("public_id")));
+                    video.setThumbnailUrl(
+                            cloudinary.url()
+                                    .resourceType("video")
+                                    .transformation(new Transformation<>()
+                                            .width(300)
+                                            .height(300)
+                                            .crop("fill")
+                                            .fetchFormat("jpg")
+                                    )
+                                    .generate((String) uploadResult.get("public_id"))
+                    );
                     video.setDuration(((Double) uploadResult.get("duration")).longValue());
                     video.setFileSize(((Integer) uploadResult.get("bytes")).longValue());
                     video.setFormat((String) uploadResult.get("format"));
@@ -146,7 +170,7 @@ public class CloudinaryUploadService {
     }
 
     @Transactional(readOnly = true)
-    private UUID getVideoUploaderId(UUID videoId) {
+    protected UUID getVideoUploaderId(UUID videoId) {
         return videoRepository.findById(videoId)
                 .map(Video::getUploaderId)
                 .orElse(UUID.randomUUID());

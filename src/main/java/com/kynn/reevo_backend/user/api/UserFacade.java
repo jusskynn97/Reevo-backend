@@ -16,7 +16,12 @@ public interface UserFacade {
 
     AuthResponse login(LoginRequest request);
 
-    UserSummary getUserSummary(UUID userId);
+    UserSummary getUserProfile(UUID userId); // Backward compatible
+    UserSummary getUserProfile(UUID userId, UUID currentUserId);
 
     void logout(String refreshToken);   // revoke refresh token
+
+    void followUser(UUID followerId, UUID followingId);
+
+    void unfollowUser(UUID followerId, UUID followingId);
 }

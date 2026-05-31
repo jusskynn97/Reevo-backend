@@ -96,7 +96,7 @@ public class AuthService implements UserFacade {
     }
 
     @Override
-    public UserSummary getUserSummary(UUID userId) {
+    public UserSummary getUserProfile(UUID userId) {
         UserProfile profile = profileRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User profile not found"));
 
@@ -104,7 +104,28 @@ public class AuthService implements UserFacade {
                 profile.getAccount().getId(),
                 profile.getAccount().getUsername(),
                 profile.getDisplayName(),
-                profile.getAvatarUrl()
+                profile.getAvatarUrl(),
+                profile.getBio(),
+                0,
+                0,
+                0,
+                false,
+                false
         );
+    }
+
+    @Override
+    public UserSummary getUserProfile(UUID userId, UUID currentUserId) {
+        return getUserProfile(userId);
+    }
+
+    @Override
+    public void followUser(UUID followerId, UUID followingId) {
+        throw new UnsupportedOperationException("Not implemented in AuthService");
+    }
+
+    @Override
+    public void unfollowUser(UUID followerId, UUID followingId) {
+        throw new UnsupportedOperationException("Not implemented in AuthService");
     }
 }
