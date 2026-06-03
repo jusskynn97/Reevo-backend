@@ -30,6 +30,8 @@ cloudinary:
   api-key: ${CLOUDINARY_API_KEY}
   api-secret: ${CLOUDINARY_API_SECRET}
 
+
+
 firebase:
   config:
     file: classpath:firebase/firebase-service-account.json
@@ -37,12 +39,12 @@ firebase:
 feed:
   reco:
     enabled: false
-    base-url: http://localhost:8001
+    base-url: https://straining-lurch-uncoiled.ngrok-free.dev
 
 tag:
   ai:
     enabled: false
-    base-url: http://localhost:8001
+    base-url: https://straining-lurch-uncoiled.ngrok-free.dev
 
 #
 #logging:

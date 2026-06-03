@@ -3,7 +3,6 @@ package com.kynn.reevo_backend.tag.internal.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -17,10 +16,12 @@ import com.kynn.reevo_backend.video.internal.domain.Video;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class TaggingService {
 
     private final VideoTaggingClient videoTaggingClient;
@@ -29,9 +30,11 @@ public class TaggingService {
 
     public void tagVideo(Video video) {
         if (video == null || video.getId() == null) {
+            log.warn("Skipping tagging: video or video ID is null");
             return;
         }
 
+        log.info("Tagging video: {}", video.getId());
         var response = videoTaggingClient.tag(new TaggingRequest(
                 video.getId(),
                 video.getVideoUrl(),
@@ -39,8 +42,10 @@ public class TaggingService {
                 video.getDescription()
         ));
         if (response == null || response.tags() == null || response.tags().isEmpty()) {
+            log.warn("No tags returned for video: {}", video.getId());
             return;
         }
+        log.info("Received {} tags for video {}: {}", response.tags().size(), video.getId(), response.tags());
 
         Map<String, Tag> tagByName = new HashMap<>();
         for (var t : response.tags()) {

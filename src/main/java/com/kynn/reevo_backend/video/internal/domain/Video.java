@@ -3,14 +3,7 @@ package com.kynn.reevo_backend.video.internal.domain;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -29,6 +22,7 @@ public class Video {
 
     private UUID uploaderId;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     private Boolean allowComment;

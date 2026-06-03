@@ -32,10 +32,12 @@ import com.kynn.reevo_backend.video.internal.repository.VideoRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class FeedService implements FeedFacade {
 
     private final VideoRepository videoRepository;
@@ -124,16 +126,25 @@ public class FeedService implements FeedFacade {
                 ))
                 .toList();
 
+        log.info("Calling recommendation service with {} candidates and userId: {}", candidates.size(), currentUserId);
+        log.info("Tag preference scores available for {} videos", tagPrefScores.size());
+        tagPrefScores.forEach((vid, score) -> log.info("Video {} has tag preference score: {}", vid, score));
+
         List<UUID> rankedIds = feedRecommendationClient.rank(new RecoRankRequest(currentUserId, recoCandidates));
         if (rankedIds != null && !rankedIds.isEmpty()) {
+            log.info("Recommendation service returned {} ranked IDs", rankedIds.size());
+            log.info("First 5 ranked IDs: {}", rankedIds.stream().limit(5).toList());
             Map<UUID, Video> byId = candidates.stream().collect(Collectors.toMap(Video::getId, Function.identity(), (a, b) -> a));
-            return rankedIds.stream()
+            List<Video> result = rankedIds.stream()
                     .map(byId::get)
                     .filter(v -> v != null)
                     .limit(size)
                     .toList();
+            log.info("Returning {} videos from recommendation service", result.size());
+            return result;
         }
 
+        log.warn("Recommendation service returned empty or null, falling back to default scoring");
         return candidates.stream()
                 .sorted(Comparator.comparingDouble(v -> -score(v, followingUploaderIds, tagPrefScores.getOrDefault(v.getId(), 0.0))))
                 .limit(size)

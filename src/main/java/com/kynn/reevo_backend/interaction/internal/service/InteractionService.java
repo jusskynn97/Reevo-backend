@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kynn.reevo_backend.common.exception.ResourceNotFoundException;
+import com.kynn.reevo_backend.feed.internal.service.FeedEventService;
 import com.kynn.reevo_backend.interaction.api.InteractionFacade;
 import com.kynn.reevo_backend.interaction.api.dto.CommentRequest;
 import com.kynn.reevo_backend.interaction.api.dto.CommentResponse;
@@ -42,6 +43,7 @@ public class InteractionService implements InteractionFacade {
     private final VideoRepository videoRepository;
     private final UserFacade userFacade;
     private final ApplicationEventPublisher eventPublisher;
+    private final FeedEventService feedEventService;
 
     public void likeVideo(UUID videoId, UUID userId) {
         if (!videoRepository.existsById(videoId)) {
@@ -59,6 +61,9 @@ public class InteractionService implements InteractionFacade {
         // Publish event for real-time update
         int likeCount = (int) videoLikeRepository.countByVideoId(videoId);
         eventPublisher.publishEvent(new VideoLikeUpdatedEvent(videoId, likeCount, true, userId));
+        
+        // Record like event for recommendation system
+        feedEventService.recordLike(userId, videoId);
     }
 
     public void unlikeVideo(UUID videoId, UUID userId) {
@@ -68,6 +73,9 @@ public class InteractionService implements InteractionFacade {
                     // Publish event for real-time update
                     int likeCount = (int) videoLikeRepository.countByVideoId(videoId);
                     eventPublisher.publishEvent(new VideoLikeUpdatedEvent(videoId, likeCount, false, userId));
+                    
+                    // Record unlike event for recommendation system
+                    feedEventService.recordUnlike(userId, videoId);
                 });
     }
 
@@ -96,6 +104,9 @@ public class InteractionService implements InteractionFacade {
         
         int commentCount = (int) commentRepository.countByVideoId(videoId);
         eventPublisher.publishEvent(new VideoCommentUpdatedEvent(videoId, commentCount, userId));
+        
+        // Record comment event for recommendation system
+        feedEventService.recordComment(userId, videoId);
         
         return mapToResponse(savedComment);
     }
