@@ -20,7 +20,7 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secretKey;   // nên dùng 512-bit key (Base64)
 
-    private static final long ACCESS_TOKEN_EXPIRATION = 15 * 60 * 1000;        // 15 phút
+    private static final long ACCESS_TOKEN_EXPIRATION =  15 * 60 * 1000;        // 15 phút
     private static final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000; // 7 ngày
 
     private SecretKey getSigningKey() {

@@ -6,5 +6,11 @@ public record UserSummary(
         UUID id,
         String username,
         String displayName,
-        String avatarUrl
+        String avatarUrl,
+        String bio,
+        long followerCount,
+        long followingCount,
+        long friendCount,
+        boolean isFollowing,
+        boolean isFriend
 ) {}

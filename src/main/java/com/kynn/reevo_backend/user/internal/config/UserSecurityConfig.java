@@ -23,7 +23,7 @@ public class UserSecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private static final String[] PUBLIC_ENDPOINTS = {
-      "/api/auth/register", "/api/auth/login", "/api/auth/refresh"
+      "/api/auth/register", "/api/auth/login", "/api/auth/refresh", "/api/feed/videos", "/swagger-ui/**", "/v3/api-docs/**", "/ws/**"
     };
 
     @Bean
