@@ -28,7 +28,7 @@ public class WatchTogetherFacade {
         try {
             VideoSyncEvent event = new com.fasterxml.jackson.databind.ObjectMapper().readValue(rawPayload, VideoSyncEvent.class);
             log.info("Parsed VideoSyncEvent successfully: {}", event);
-            // We'll set userId manually for now
+            // Set userId manually
             watchTogetherService.syncVideo(roomId, UUID.fromString("00000000-0000-0000-0000-000000000000"), event);
         } catch (Exception e) {
             log.error("Error parsing VideoSyncEvent", e);

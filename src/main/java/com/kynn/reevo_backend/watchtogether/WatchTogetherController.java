@@ -79,4 +79,13 @@ public class WatchTogetherController {
         List<RoomMessageResponse> messages = watchTogetherService.getRoomMessages(roomId);
         return ApiResponse.ok(messages);
     }
+
+    @DeleteMapping("/rooms/{roomId}")
+    public ApiResponse<Void> deleteRoom(
+            @CurrentUserId UUID userId,
+            @PathVariable UUID roomId
+    ) {
+        watchTogetherService.deleteRoom(roomId, userId);
+        return ApiResponse.ok(null);
+    }
 }

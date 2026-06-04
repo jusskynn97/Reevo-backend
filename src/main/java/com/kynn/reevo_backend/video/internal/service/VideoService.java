@@ -67,8 +67,9 @@ public class VideoService implements VideoFacade {
         UUID videoId = video.getId();
 
         byte[] fileBytes = req.videoFile().getBytes();
+        String filename = req.videoFile().getOriginalFilename();
 
-        cloudinaryUploadService.uploadAsync(videoId, fileBytes);
+        cloudinaryUploadService.uploadAsync(videoId, fileBytes, filename);
 
         return new VideoUploadResponse(
                 videoId,
@@ -112,7 +113,8 @@ public class VideoService implements VideoFacade {
                     v.getUploadedAt().toString(),
                     likeCount,
                     commentCount,
-                    isLiked
+                    isLiked,
+                    v.getIsAiGenerated() != null && v.getIsAiGenerated()
             );
         }).toList();
     }

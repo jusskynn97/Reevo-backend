@@ -44,4 +44,6 @@ public class Video {
 
     private LocalDateTime uploadedAt = LocalDateTime.now();
     private LocalDateTime processedAt;
+    
+    private Boolean isAiGenerated = false;
 }

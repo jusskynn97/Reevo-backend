@@ -14,6 +14,7 @@ public interface RoomParticipantRepository extends JpaRepository<RoomParticipant
     List<RoomParticipant> findByRoomId(UUID roomId);
     Optional<RoomParticipant> findByRoomIdAndUserId(UUID roomId, UUID userId);
     void deleteByRoomIdAndUserId(UUID roomId, UUID userId);
+    void deleteByRoomId(UUID roomId);
     long countByRoomId(UUID roomId);
 }
 

@@ -37,12 +37,25 @@ public class CloudinaryUploadService {
     private final UploadProgressService uploadProgressService;
     @Lazy
     private final TaggingService taggingService;
+    private final AIGeneratedDetectionService aiGeneratedDetectionService;
 
     @Async("videoUploadExecutor")
-    public CompletableFuture<Void> uploadAsync(UUID videoId, byte[] fileBytes) {
+    public CompletableFuture<Void> uploadAsync(UUID videoId, byte[] fileBytes, String filename) {
         try {
             updateVideoStatusWithRetry(videoId, VideoStatus.UPLOADING, null);
 //            uploadProgressService.sendProgress(videoId, VideoStatus.UPLOADING, 10);
+
+            // FIRST: DETECT IF VIDEO IS AI-GENERATED
+            boolean isAiGenerated = aiGeneratedDetectionService.detectIfVideoIsAIGenerated(fileBytes, filename);
+            
+            // Update video with AI status
+            Optional<Video> videoOptForAI = videoRepository.findById(videoId);
+            if (videoOptForAI.isPresent()) {
+                Video video = videoOptForAI.get();
+                video.setIsAiGenerated(isAiGenerated);
+                videoRepository.save(video);
+                log.info("Video {} marked as AI-generated: {}", videoId, isAiGenerated);
+            }
 
             Map<String, Object> options = new HashMap<>();
             options.put("resource_type", "video");

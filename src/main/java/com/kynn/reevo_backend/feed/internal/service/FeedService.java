@@ -93,7 +93,8 @@ public class FeedService implements FeedFacade {
                     v.getUploadedAt().toString(),
                     likeCount,
                     commentCount,
-                    isLiked
+                    isLiked,
+                    v.getIsAiGenerated() != null && v.getIsAiGenerated()
             );
         }).toList();
 

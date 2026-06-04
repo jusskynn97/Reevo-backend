@@ -14,5 +14,6 @@ public interface RoomMessageRepository extends JpaRepository<RoomMessage, UUID> 
     List<RoomMessage> findByRoomIdOrderByCreatedAtDesc(UUID roomId);
     List<RoomMessage> findByRoomIdAndCreatedAtAfterOrderByCreatedAtAsc(UUID roomId, LocalDateTime after);
     void deleteByCreatedAtBefore(LocalDateTime before);
+    void deleteByRoomId(UUID roomId);
 }
 

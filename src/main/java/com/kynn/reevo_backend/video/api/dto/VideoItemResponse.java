@@ -14,5 +14,6 @@ public record VideoItemResponse(
         String uploadedAt,
         int likeCount,
         int commentCount,
-        boolean isLiked
+        boolean isLiked,
+        boolean isAiGenerated
 ) {}

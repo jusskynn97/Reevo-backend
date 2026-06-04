@@ -197,6 +197,29 @@ public class WatchTogetherService {
     }
 
     @Transactional
+    public void deleteRoom(UUID roomId, UUID userId) {
+        WatchRoom room = watchRoomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found"));
+
+        // Only creator can delete room
+        if (!room.getCreatorId().equals(userId)) {
+            throw new IllegalStateException("Only room host can delete this room");
+        }
+
+        // Delete all participants first
+        roomParticipantRepository.deleteByRoomId(roomId);
+        
+        // Delete all messages first
+        roomMessageRepository.deleteByRoomId(roomId);
+        
+        // Now delete the room
+        watchRoomRepository.delete(room);
+        
+        // Notify all remaining participants that room has been deleted
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/deleted", "Room has been deleted");
+    }
+
+    @Transactional
     public void changeVideo(UUID roomId, UUID userId, String videoId, String videoUrl, String thumbnailUrl) {
         WatchRoom room = watchRoomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found"));
